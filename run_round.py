@@ -62,7 +62,7 @@ def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dr
 
     # 构造 codex 命令
     # 用 stdin 传 prompt（避免 shell 转义问题）
-    cmd = ["codex", "exec", "-C", cwd, "-c", 'reasoning_effort="medium"']
+    cmd = ["codex", "exec", "-C", cwd, "-c", 'model_reasoning_effort="medium"']
     if auto:
         cmd.append("--full-auto")
     cmd.append("-")  # 从 stdin 读取 prompt
