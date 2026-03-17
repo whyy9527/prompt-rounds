@@ -14,7 +14,8 @@ prompt-rounds/
 ├── rounds.yaml           # 配置：话术模块内容 + 轮次组合 + 工作区路径
 ├── generate_rounds.py    # 生成轮次文件
 ├── run_round.py          # 发送轮次给 codex exec 执行
-└── result/               # 生成的轮次文件（round_01.md … round_N.md）
+├── result/               # 生成的轮次文件（round_01.md … round_N.md）
+└── logs/                 # 每轮执行日志（自动生成，不提交 git）
 ```
 
 ---
@@ -22,7 +23,7 @@ prompt-rounds/
 ## 工作流
 
 ```
-编辑 rounds.yaml → generate_rounds.py 生成文件 → run_round.py 发给 codex 执行
+编辑 rounds.yaml → generate_rounds.py 生成文件 → run_round.py 发给 codex 执行 → logs/ 查看结果
 ```
 
 ---
@@ -66,6 +67,15 @@ python3 run_round.py --round 1 --auto
 # 多轮依次执行，等上一轮结束再发下一轮
 python3 run_round.py --round 1,2,3
 
+# 执行 yaml 中定义的全部轮次
+python3 run_round.py --all
+
+# 全自动跑完全部轮次
+python3 run_round.py --all --auto
+
+# 不保存日志
+python3 run_round.py --round 1 --no-log
+
 # 验证工作区配置（pwd / ls / README，不调用 codex）
 python3 run_round.py --round 1 --test
 
@@ -75,6 +85,19 @@ python3 run_round.py --round 1 --dry-run
 # 指定配置文件
 python3 run_round.py --round 1 --config my_project.yaml
 ```
+
+### 日志
+
+每轮执行默认自动保存日志到 `logs/`，文件名含轮次编号和时间戳：
+
+```
+logs/
+├── round_01_20260318_143022.log
+├── round_02_20260318_144501.log
+└── round_03_20260318_151230.log
+```
+
+每个日志文件开头包含元信息（时间、工作区、话术文件），后面是 codex 的完整输出。
 
 ---
 
