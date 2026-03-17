@@ -17,8 +17,8 @@ sections:
     先阅读以下业务文档，再开始改代码：
 
     1. `docs/prd/README.md`
-    2. `docs/prd/小程序前台_PRD.md`
-    3. `docs/prd/管理后台_PRD.md`
+    2. `docs/prd/小程序前台PRD.md`
+    3. `docs/prd/管理后台PRD.md`
 
     你现在不是单纯写代码，而是作为一个顶级产品工程师持续迭代这个项目。
 
@@ -101,7 +101,7 @@ sections:
     先阅读：
 
     - `docs/prd/README.md`
-    - `docs/prd/小程序前台_PRD.md`
+    - `docs/prd/小程序前台PRD.md`
 
     本轮只聚焦小程序前台。
 
@@ -122,7 +122,7 @@ sections:
     - 不要只做样式优化，要同时优化交互路径和业务闭环
     - 不要只分析，请直接修改代码
     - 优先做高影响改动
-    - 改动必须尽量贴合 `小程序前台_PRD.md` 的目标与约束
+    - 改动必须尽量贴合 `小程序前台PRD.md` 的目标与约束
 
     输出格式固定为：
 
@@ -137,7 +137,7 @@ sections:
     先阅读：
 
     - `docs/prd/README.md`
-    - `docs/prd/管理后台_PRD.md`
+    - `docs/prd/管理后台PRD.md`
 
     本轮只聚焦管理后台。
 
@@ -158,7 +158,7 @@ sections:
     - 不要只做界面微调，要同时优化后台操作效率和业务逻辑表达
     - 不要只给建议，请直接改代码
     - 优先处理对业务影响最大、最容易产生误操作的部分
-    - 改动必须尽量贴合 `管理后台_PRD.md` 的业务规则和目标
+    - 改动必须尽量贴合 `管理后台PRD.md` 的业务规则和目标
 
     输出格式固定为：
 
@@ -173,8 +173,8 @@ sections:
     先阅读：
 
     - `docs/prd/README.md`
-    - `docs/prd/小程序前台_PRD.md`
-    - `docs/prd/管理后台_PRD.md`
+    - `docs/prd/小程序前台PRD.md`
+    - `docs/prd/管理后台PRD.md`
 
     本轮请从"前后台一致性"角度检查并迭代代码。
 

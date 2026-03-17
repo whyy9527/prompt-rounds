@@ -1,8 +1,8 @@
 先阅读以下业务文档，再开始改代码：
 
 1. `docs/prd/README.md`
-2. `docs/prd/小程序前台_PRD.md`
-3. `docs/prd/管理后台_PRD.md`
+2. `docs/prd/小程序前台PRD.md`
+3. `docs/prd/管理后台PRD.md`
 
 你现在不是单纯写代码，而是作为一个顶级产品工程师持续迭代这个项目。
 
@@ -46,8 +46,8 @@
 先阅读：
 
 - `docs/prd/README.md`
-- `docs/prd/小程序前台_PRD.md`
-- `docs/prd/管理后台_PRD.md`
+- `docs/prd/小程序前台PRD.md`
+- `docs/prd/管理后台PRD.md`
 
 本轮请从"前后台一致性"角度检查并迭代代码。
 
