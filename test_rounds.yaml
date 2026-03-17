@@ -1,0 +1,22 @@
+output_dir: result_test
+file_prefix: test_
+separator: "---"
+default_workspace: /Users/haoyangwu/WeChatProjects/store-growth
+
+sections:
+  pwd测试: |
+    请执行 pwd 命令，告诉我当前工作目录是什么，只需返回结果。
+
+  git远程测试: |
+    请执行 git remote -v，告诉我当前仓库的远程连接地址，只需返回结果。
+
+  readme测试: |
+    请读取当前目录下的 README.md 文件，返回它的完整内容。
+
+rounds:
+  - num: 1
+    combo: [pwd测试]
+  - num: 2
+    combo: [git远程测试]
+  - num: 3
+    combo: [readme测试]
