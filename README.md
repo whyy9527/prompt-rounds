@@ -15,7 +15,9 @@ prompt-rounds/
 ├── generate_rounds.py    # 生成轮次文件
 ├── run_round.py          # 发送轮次给 codex exec 执行
 ├── result/               # 生成的轮次文件（round_01.md … round_N.md）
-└── logs/                 # 每轮执行日志（自动生成，不提交 git）
+├── logs/                 # 每轮执行日志（自动生成，不提交 git）
+├── test_rounds.yaml      # 轻量测试配置（验证链路用）
+└── result_test/          # 测试轮次生成文件
 ```
 
 ---
@@ -76,15 +78,19 @@ python3 run_round.py --all --auto
 # 不保存日志
 python3 run_round.py --round 1 --no-log
 
-# 验证工作区配置（pwd / ls / README，不调用 codex）
-python3 run_round.py --round 1 --test
-
 # 只预览 prompt，不执行
 python3 run_round.py --round 1 --dry-run
 
 # 指定配置文件
 python3 run_round.py --round 1 --config my_project.yaml
 ```
+
+### 注意事项
+
+- 多轮执行时，每轮阻塞等待 codex 完成后再发下一轮
+- codex 异常退出（非零退出码）时自动终止，不继续后续轮次
+- 中断整个流程请用 `Ctrl+C`
+- 每轮结束后会提示 commit + push 工作区改动
 
 ### 日志
 
@@ -98,6 +104,16 @@ logs/
 ```
 
 每个日志文件开头包含元信息（时间、工作区、话术文件），后面是 codex 的完整输出。
+
+---
+
+## 验证链路
+
+用 `test_rounds.yaml` 跑三轮轻量任务（pwd / git remote / README），不改代码，只验证配置和流程是否正常：
+
+```bash
+python3 run_round.py --all --auto --config test_rounds.yaml
+```
 
 ---
 
@@ -135,7 +151,7 @@ rounds:
 
 ```bash
 python3 generate_rounds.py new_project.yaml
-python3 run_round.py --round 1 --config new_project.yaml
+python3 run_round.py --all --auto --config new_project.yaml
 ```
 
 ---
