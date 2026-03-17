@@ -90,7 +90,8 @@ def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dr
 
 def main():
     parser = argparse.ArgumentParser(description="把轮次文件发给 codex exec 执行")
-    parser.add_argument("--round", required=True, help="轮次编号，如 1 或 1,3,7")
+    parser.add_argument("--round", default=None, help="轮次编号，如 1 或 1,3,7")
+    parser.add_argument("--all", action="store_true", help="依次执行 yaml 中定义的全部轮次")
     parser.add_argument("--workspace", default=None, help="codex 工作区路径（覆盖 yaml 配置）")
     parser.add_argument("--config", default=None, help="指定 rounds.yaml 路径")
     parser.add_argument("--auto", action="store_true", help="全自动模式（--full-auto，无需人工确认）")
@@ -115,7 +116,13 @@ def main():
     if not args.dry_run and not args.test:
         find_codex()
 
-    nums = [int(x.strip()) for x in args.round.split(",")]
+    if args.all:
+        nums = [r["num"] for r in config.get("rounds", [])]
+    elif args.round:
+        nums = [int(x.strip()) for x in args.round.split(",")]
+    else:
+        parser.error("请指定 --round 或 --all")
+
     for num in nums:
         run_round(num, config, config_dir, args.workspace, args.auto, args.dry_run, args.test)
 
