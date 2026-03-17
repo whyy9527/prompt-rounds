@@ -99,3 +99,11 @@ python3 generate_rounds.py new_project.yaml -o ./new_project_result
 | 业务闭环专项话术 | 强化核心转化路径 |
 | 工程质量专项话术 | 组件拆分、命名、可维护性 |
 | 输出格式约束话术 | 约束 AI 的输出结构 |
+
+---
+
+## License
+
+[MIT](./LICENSE) © [whyy9527](https://github.com/whyy9527)
+
+可自由使用、修改和分发，但须保留原作者署名及指向本仓库的来源链接。
