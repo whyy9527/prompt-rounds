@@ -9,6 +9,9 @@ output_dir: result
 file_prefix: round_
 separator: "---"
 
+# codex 工作区默认路径（run_round.py 使用），可被 --workspace 参数覆盖
+# default_workspace: /path/to/your/project
+
 sections:
   总控话术: |
     先阅读以下业务文档，再开始改代码：
