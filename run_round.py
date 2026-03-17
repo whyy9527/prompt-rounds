@@ -129,6 +129,16 @@ def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dr
 
     print(f"\n[第{num}轮] 日志已保存：{log_file}")
 
+    if proc.returncode != 0:
+        print(f"[第{num}轮] codex 异常退出（code {proc.returncode}），已终止后续轮次")
+        sys.exit(proc.returncode)
+
+    print(f"\n{'=' * 40}")
+    print(f"[第{num}轮完成] 请及时 commit + push 工作区改动：")
+    print(f"  cd {cwd}")
+    print(f"  git add -A && git commit -m 'round {num}: <简述改动>' && git push")
+    print(f"{'=' * 40}\n")
+
 
 def main():
     parser = argparse.ArgumentParser(description="把轮次文件发给 codex exec 执行")
