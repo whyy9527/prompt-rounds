@@ -2,7 +2,7 @@
 
 一套用于 AI 编码代理（Claude Code / Codex / Cursor Agent 等）持续迭代项目的提示词管理工具。
 
-核心思路：把常用的迭代话术拆成独立模块，按需组合成每一轮的提示词文件，直接粘贴给 AI 代理使用。
+核心思路：把常用的迭代话术拆成独立模块，按需组合成每一轮的提示词文件，一键发给 AI 代理执行。
 
 ---
 
@@ -11,14 +11,23 @@
 ```
 prompt-rounds/
 ├── prompt-library.md     # 所有话术模块的原始文档与使用说明
-├── rounds.yaml           # 配置：定义话术模块内容 + 每轮的组合方式
-├── generate_rounds.py    # 生成脚本
+├── rounds.yaml           # 配置：话术模块内容 + 轮次组合 + 工作区路径
+├── generate_rounds.py    # 生成轮次文件
+├── run_round.py          # 发送轮次给 codex exec 执行
 └── result/               # 生成的轮次文件（round_01.md … round_N.md）
 ```
 
 ---
 
-## 快速开始
+## 工作流
+
+```
+编辑 rounds.yaml → generate_rounds.py 生成文件 → run_round.py 发给 codex 执行
+```
+
+---
+
+## generate_rounds.py — 生成轮次文件
 
 ```bash
 # 生成全部轮次文件
@@ -27,31 +36,55 @@ python3 generate_rounds.py
 # 列出所有轮次定义（不生成文件）
 python3 generate_rounds.py --list
 
-# 只生成第 3 轮
+# 只生成指定轮次
 python3 generate_rounds.py --round 3
-
-# 只生成第 1、5、12 轮
 python3 generate_rounds.py --round 1,5,12
 
-# 指定配置文件
+# 指定配置文件 / 覆盖输出目录
 python3 generate_rounds.py my_project.yaml
-
-# 覆盖输出目录
 python3 generate_rounds.py -o ./output
 ```
 
-依赖：`pyyaml`（首次运行自动安装）
+生成的文件只包含话术正文，无标题无标签，可直接粘贴或由 `run_round.py` 发出。
 
 ---
 
-## 如何配置
+## run_round.py — 发送给 codex exec
 
-编辑 `rounds.yaml`：
+依赖：[Codex CLI](https://github.com/openai/codex) (`npm install -g @openai/codex`)
+
+```bash
+# 发送第 1 轮（使用 rounds.yaml 里配置的默认工作区）
+python3 run_round.py --round 1
+
+# 指定工作区（覆盖 yaml 配置）
+python3 run_round.py --round 1 --workspace ~/myapp
+
+# 全自动模式（codex 不询问确认）
+python3 run_round.py --round 1 --auto
+
+# 多轮依次执行，等上一轮结束再发下一轮
+python3 run_round.py --round 1,2,3
+
+# 验证工作区配置（pwd / ls / README，不调用 codex）
+python3 run_round.py --round 1 --test
+
+# 只预览 prompt，不执行
+python3 run_round.py --round 1 --dry-run
+
+# 指定配置文件
+python3 run_round.py --round 1 --config my_project.yaml
+```
+
+---
+
+## 如何配置 rounds.yaml
 
 ```yaml
-output_dir: result       # 输出目录
-file_prefix: round_      # 文件名前缀，生成 round_01.md、round_02.md…
-separator: "---"         # 模块之间的分隔符
+output_dir: result            # 轮次文件输出目录
+file_prefix: round_           # 文件名前缀 → round_01.md
+separator: "---"              # 模块间分隔符
+default_workspace: /path/to/project   # codex 工作区默认路径
 
 sections:
   总控话术: |
@@ -67,26 +100,26 @@ rounds:
     combo: [总控话术]
 ```
 
-- `sections`：定义所有可复用的话术模块，key 是名称，value 是正文
-- `rounds`：定义每轮使用哪些模块，按顺序拼合，模块间插入分隔符
-
-生成的文件只包含话术正文，无标题、无标签，可直接粘贴使用。
+- `sections`：可复用的话术模块，key 是名称，value 是正文
+- `rounds`：每轮使用哪些模块，按顺序拼合
+- `default_workspace`：`run_round.py` 的默认工作区，可被 `--workspace` 覆盖
 
 ---
 
 ## 复用到新项目
 
-复制一份 `rounds.yaml`，修改 `sections` 和 `rounds`，脚本不用改：
+复制一份 `rounds.yaml`，修改 `sections`、`rounds` 和 `default_workspace`，脚本不用改：
 
 ```bash
-python3 generate_rounds.py new_project.yaml -o ./new_project_result
+python3 generate_rounds.py new_project.yaml
+python3 run_round.py --round 1 --config new_project.yaml
 ```
 
 ---
 
-## 内置话术模块（示例）
+## 内置话术模块
 
-当前 `rounds.yaml` 中预置了以下模块，适用于小程序 + 管理后台类项目：
+当前 `rounds.yaml` 预置了以下模块，适用于小程序 + 管理后台类项目：
 
 | 模块名 | 用途 |
 |--------|------|
@@ -99,6 +132,14 @@ python3 generate_rounds.py new_project.yaml -o ./new_project_result
 | 业务闭环专项话术 | 强化核心转化路径 |
 | 工程质量专项话术 | 组件拆分、命名、可维护性 |
 | 输出格式约束话术 | 约束 AI 的输出结构 |
+
+---
+
+## 依赖
+
+- Python 3.9+
+- `pyyaml`（首次运行自动安装）
+- `@openai/codex`（仅 `run_round.py` 需要）
 
 ---
 
