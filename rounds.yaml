@@ -10,7 +10,7 @@ file_prefix: round_
 separator: "---"
 
 # codex 工作区默认路径（run_round.py 使用），可被 --workspace 参数覆盖
-# default_workspace: /path/to/your/project
+default_workspace: /Users/haoyangwu/WeChatProjects/store-growth
 
 sections:
   总控话术: |

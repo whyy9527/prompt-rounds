@@ -7,6 +7,7 @@ run_round.py — 把轮次文件发给 codex exec 执行
   python3 run_round.py --round 1 --workspace ~/myapp    # 指定工作区
   python3 run_round.py --round 1 --auto                 # 全自动模式（--full-auto）
   python3 run_round.py --round 1 --dry-run              # 只打印命令，不执行
+  python3 run_round.py --round 1 --test                 # 用轻量命令验证工作区（不调用 codex）
   python3 run_round.py --round 1,3,7                    # 依次执行多轮
   python3 run_round.py --round 1 --config other.yaml    # 指定配置文件
 """
@@ -36,7 +37,7 @@ def load_config(path: str) -> dict:
         return yaml.safe_load(f) or {}
 
 
-def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dry_run: bool):
+def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dry_run: bool, test: bool = False):
     prefix = config.get("file_prefix", "round_")
     output_dir = os.path.join(config_dir, config.get("output_dir", "result"))
     round_file = os.path.join(output_dir, f"{prefix}{num:02d}.md")
@@ -73,6 +74,17 @@ def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dr
         print("--- dry-run，未执行 ---\n")
         return
 
+    if test:
+        print("--- [test 模式] 验证工作区，不调用 codex ---")
+        subprocess.run(["pwd"], cwd=cwd)
+        subprocess.run(["ls", "-1"], cwd=cwd)
+        readme = os.path.join(cwd, "README.md")
+        if os.path.exists(readme):
+            print("\n--- README.md 前 10 行 ---")
+            subprocess.run(["head", "-10", "README.md"], cwd=cwd)
+        print(f"\n--- prompt 将发送 {len(prompt)} 字符 ---\n")
+        return
+
     subprocess.run(cmd, input=prompt, text=True)
 
 
@@ -83,6 +95,7 @@ def main():
     parser.add_argument("--config", default=None, help="指定 rounds.yaml 路径")
     parser.add_argument("--auto", action="store_true", help="全自动模式（--full-auto，无需人工确认）")
     parser.add_argument("--dry-run", action="store_true", help="只打印命令和 prompt 预览，不实际执行")
+    parser.add_argument("--test", action="store_true", help="用轻量命令验证工作区（pwd / ls / README），不调用 codex")
     args = parser.parse_args()
 
     # 找配置文件
@@ -99,12 +112,12 @@ def main():
     config = load_config(config_path)
     config_dir = os.path.dirname(config_path)
 
-    if not args.dry_run:
+    if not args.dry_run and not args.test:
         find_codex()
 
     nums = [int(x.strip()) for x in args.round.split(",")]
     for num in nums:
-        run_round(num, config, config_dir, args.workspace, args.auto, args.dry_run)
+        run_round(num, config, config_dir, args.workspace, args.auto, args.dry_run, args.test)
 
 
 if __name__ == "__main__":
