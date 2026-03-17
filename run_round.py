@@ -9,6 +9,8 @@ run_round.py — 把轮次文件发给 codex exec 执行
   python3 run_round.py --round 1 --dry-run              # 只打印命令，不执行
   python3 run_round.py --round 1 --test                 # 用轻量命令验证工作区（不调用 codex）
   python3 run_round.py --round 1,3,7                    # 依次执行多轮
+  python3 run_round.py --round 1 --no-log               # 不保存日志
+  python3 run_round.py --all                            # 依次执行全部轮次
   python3 run_round.py --round 1 --config other.yaml    # 指定配置文件
 """
 
@@ -16,6 +18,7 @@ import sys
 import os
 import subprocess
 import argparse
+from datetime import datetime
 
 try:
     import yaml
@@ -37,7 +40,7 @@ def load_config(path: str) -> dict:
         return yaml.safe_load(f) or {}
 
 
-def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dry_run: bool, test: bool = False):
+def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dry_run: bool, test: bool = False, no_log: bool = False):
     prefix = config.get("file_prefix", "round_")
     output_dir = os.path.join(config_dir, config.get("output_dir", "result"))
     round_file = os.path.join(output_dir, f"{prefix}{num:02d}.md")
@@ -85,7 +88,46 @@ def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dr
         print(f"\n--- prompt 将发送 {len(prompt)} 字符 ---\n")
         return
 
-    subprocess.run(cmd, input=prompt, text=True)
+    if no_log:
+        subprocess.run(cmd, input=prompt, text=True)
+        return
+
+    # 日志文件：logs/round_01_20260318_143022.log
+    log_dir = os.path.join(config_dir, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = os.path.join(log_dir, f"round_{num:02d}_{timestamp}.log")
+
+    header = (
+        f"=== 第{num}轮 ===\n"
+        f"时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        f"工作区：{cwd}\n"
+        f"话术文件：{round_file}\n"
+        f"{'=' * 40}\n\n"
+    )
+
+    print(f"[第{num}轮] 日志：{log_file}")
+
+    with open(log_file, "w", encoding="utf-8") as log:
+        log.write(header)
+        log.flush()
+
+        proc = subprocess.Popen(
+            cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, text=True
+        )
+        proc.stdin.write(prompt)
+        proc.stdin.close()
+
+        for line in proc.stdout:
+            sys.stdout.write(line)
+            sys.stdout.flush()
+            log.write(line)
+            log.flush()
+
+        proc.wait()
+
+    print(f"\n[第{num}轮] 日志已保存：{log_file}")
 
 
 def main():
@@ -97,6 +139,7 @@ def main():
     parser.add_argument("--auto", action="store_true", help="全自动模式（--full-auto，无需人工确认）")
     parser.add_argument("--dry-run", action="store_true", help="只打印命令和 prompt 预览，不实际执行")
     parser.add_argument("--test", action="store_true", help="用轻量命令验证工作区（pwd / ls / README），不调用 codex")
+    parser.add_argument("--no-log", action="store_true", help="不保存日志")
     args = parser.parse_args()
 
     # 找配置文件
@@ -124,7 +167,7 @@ def main():
         parser.error("请指定 --round 或 --all")
 
     for num in nums:
-        run_round(num, config, config_dir, args.workspace, args.auto, args.dry_run, args.test)
+        run_round(num, config, config_dir, args.workspace, args.auto, args.dry_run, args.test, args.no_log)
 
 
 if __name__ == "__main__":
