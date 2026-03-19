@@ -1,6 +1,7 @@
 output_dir: result_test
 file_prefix: test_
 separator: "---"
+provider: claude
 default_workspace: /Users/haoyangwu/WeChatProjects/store-growth
 
 sections:
@@ -13,6 +14,9 @@ sections:
   readme测试: |
     请读取当前目录下的 README.md 文件，返回它的完整内容。
 
+  迭代日志测试: |
+    请读取 docs/iteration-log.md 文件，返回它的完整内容，并告诉我"下一轮建议"是什么。
+
 rounds:
   - num: 1
     combo: [pwd测试]
@@ -20,3 +24,5 @@ rounds:
     combo: [git远程测试]
   - num: 3
     combo: [readme测试]
+  - num: 4
+    combo: [迭代日志测试]
