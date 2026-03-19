@@ -116,10 +116,17 @@ def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dr
 
     prompt = build_prompt(num, base_prompt, cwd)
 
-    cmd = ["codex", "exec", "-C", cwd, "-c", 'model_reasoning_effort="medium"']
-    if auto:
-        cmd.append("--full-auto")
-    cmd.append("-")  # 从 stdin 读取 prompt
+    provider = config.get("provider", "codex")
+    if provider == "claude":
+        cmd = ["claude", "-p", "--effort", "medium"]
+        if auto:
+            cmd.append("--dangerously-skip-permissions")
+        cmd.append("-")  # 从 stdin 读取 prompt
+    else:
+        cmd = ["codex", "exec", "-C", cwd, "-c", 'model_reasoning_effort="medium"']
+        if auto:
+            cmd.append("--full-auto")
+        cmd.append("-")
 
     print(f"\n[第{num}轮] 工作区：{cwd}")
     print(f"[第{num}轮] 话术文件：{round_file}")
@@ -132,7 +139,8 @@ def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dr
         return
 
     if no_log:
-        proc = subprocess.run(cmd, input=prompt, text=True)
+        proc_cwd = cwd if provider == "claude" else None
+        proc = subprocess.run(cmd, input=prompt, text=True, cwd=proc_cwd)
         returncode = proc.returncode
     else:
         log_dir = os.path.join(config_dir, "logs")
@@ -154,9 +162,10 @@ def run_round(num: int, config: dict, config_dir: str, workspace, auto: bool, dr
             log.write(header)
             log.flush()
 
+            proc_cwd = cwd if provider == "claude" else None
             proc = subprocess.Popen(
                 cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT, text=True
+                stderr=subprocess.STDOUT, text=True, cwd=proc_cwd
             )
             proc.stdin.write(prompt)
             proc.stdin.close()
