@@ -13,7 +13,7 @@ separator: "---"
 provider: codex
 
 # 工作区默认路径，可被 --workspace 参数覆盖
-default_workspace: /Users/haoyangwu/WeChatProjects/store-growth
+default_workspace: /Users/haoyangwu/Desktop/store-growth
 
 sections:
   总控话术: |
